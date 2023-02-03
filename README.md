@@ -1,10 +1,12 @@
 # README
 
-# 인증, 인가, 보안 기능을 수행하는 Rest api 서버
+# backend-api-auth
 
-Spring Security를 통안 보안 기능 수행 
+API 서버를 통한 보안, 인증, 인가 기능을 구현한 프로젝트
 
-Spring Security의 Filter 영역에서 JWT 토큰을 통한 인가, 인증 수행
+- Spring Security를 통안 보안 기능 수행 
+
+- Spring Security의 Filter 영역에서 JWT 토큰을 통한 인가, 인증 수행
 
 # Requirement
 
