@@ -11,12 +11,26 @@ public interface ClubMemberService {
 
     String register(ClubMemberDTO clubAuthMemberDTO);
 
-    ClubMemberDTO get(String email,boolean fromSocial);
+    ClubMemberDTO get(String email);
 
     void modify(ClubMemberDTO clubMemberDTO);
 
-    void remove(String email,boolean fromSocial);
+    void remove(String email);
 
+    default ClubMember dtoToEntity(ClubMemberDTO clubMemberDTO){
+        ClubMember clubMember= ClubMember.builder()
+                .email(clubMemberDTO.getId())
+                .password(clubMemberDTO.getPw())
+                .name(clubMemberDTO.getName())
+                .fromSocial(clubMemberDTO.isFromSocial())
+                //.roleSet(clubMemberDTO.)
+                .build();
+        clubMember.addMemberRole(ClubMemberRole.USER);// 회원가입한 멤버는 기본 유저로 역할 설정
+        return clubMember;
+    }
+
+
+    /*
     default ClubMember dtoToEntity(ClubMemberDTO clubMemberDTO){
         ClubMember clubMember= ClubMember.builder()
                 .email(clubMemberDTO.getEmail())
@@ -29,15 +43,17 @@ public interface ClubMemberService {
         return clubMember;
     }
 
+     */
+
 
     default ClubMemberDTO entityToDTO(ClubMember clubMember){
 
         ClubMemberDTO clubMemberDTO=ClubMemberDTO.builder()
-                .email(clubMember.getEmail())
+                .id(clubMember.getEmail())
                 .name(clubMember.getName())
-                .password(clubMember.getPassword())
+                .pw(clubMember.getPassword())
                 .fromSocial(clubMember.isFromSocial())
-                .roleSet(clubMember.getRoleSet())
+               // .roleSet(clubMember.getRoleSet())
                 .build();
         return clubMemberDTO;
 

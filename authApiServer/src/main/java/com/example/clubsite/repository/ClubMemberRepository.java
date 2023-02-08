@@ -15,5 +15,9 @@ public interface ClubMemberRepository extends JpaRepository<ClubMember,String> {
     //한번의 fetchJoin으로 모든 roleSet을 가져오게 설정한다.
     // ( @EntityGraph x시 LAZY 방식으로 인해 roleset 못가져온다.
     @Query("select m from ClubMember m where m.fromSocial = :social and m.email =:email")
-    Optional<ClubMember> findByEmail(String email, boolean social);
+    Optional<ClubMember> findByEmail(String email, boolean social); //with social
+
+    @EntityGraph(attributePaths = {"roleSet"}, type = EntityGraph.EntityGraphType.LOAD)
+    @Query("select m from ClubMember m where  m.email =:email") //디폴트 findById는  Lazy Loading으로 RoleSet 불러오지 못함.
+    Optional<ClubMember> findOnlyByEmail(String email);
 }

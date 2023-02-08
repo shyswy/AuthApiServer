@@ -120,7 +120,9 @@ public class SecurityConfig { //2.7 버전 이후, websecurityconfigurationAdapt
 
         http.addFilterBefore(apiCheckFilter(),UsernamePasswordAuthenticationFilter.class);
        // http.addFilterBefore(reReadableRequestFilter(),apiLoginFilter(authenticationManager));
-        http.addFilterBefore(apiLoginFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class);
+        //http.addFilterBefore(apiLoginFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(apiLoginFilter(authenticationManager), apiCheckFilter().getClass());
+
 
         return http.build();
     }
@@ -140,8 +142,11 @@ public class SecurityConfig { //2.7 버전 이후, websecurityconfigurationAdapt
 
 
         List<String> patternList = new ArrayList<>();
-        patternList.add("/auth/verification/*");
+        patternList.add("/auth/verification*");
         patternList.add("/data/name");
+        patternList.add("/user/read*");
+        patternList.add("/user/remove*");
+        patternList.add("/user/modify*");
 
         return new ApiCheckFilter(patternList,jwtUtil());
 

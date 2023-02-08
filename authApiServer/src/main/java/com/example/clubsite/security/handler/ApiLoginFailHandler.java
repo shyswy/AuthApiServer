@@ -32,7 +32,8 @@ public class ApiLoginFailHandler implements AuthenticationFailureHandler {
             message = "wrong-password";
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         } else {
-            message = "etc-Authentication-error";
+
+
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         }
 

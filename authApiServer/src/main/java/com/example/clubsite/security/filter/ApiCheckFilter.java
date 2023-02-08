@@ -4,6 +4,7 @@ import com.example.clubsite.security.util.JWTUtil;
 import com.google.gson.Gson;
 import com.nimbusds.jose.shaded.json.JSONObject;
 import lombok.extern.log4j.Log4j2;
+import net.minidev.json.parser.ParseException;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.util.AntPathMatcher;
@@ -14,8 +15,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,21 +50,14 @@ public class ApiCheckFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         log.info("Request URL: "+request.getRequestURI());
-       // log.info(antPathMatcher.match(pattern,request.getRequestURI()));
 
-       boolean exist=false;
+        boolean exist=false;
        String requestUrl=request.getRequestURI();
        String inPathName="";
        String tmp=requestUrl;
+       String pathVar="";
         for (String pat : patternList) {
             if(pat.equals(requestUrl)||antPathMatcher.match(pat,requestUrl)){ //antPathMatch 아직 필요 x
-                if(antPathMatcher.match("/auth/verification/*",requestUrl)){ // /auth/verificaion/id 의 경우, id를 추출한다.
-                    inPathName=tmp.substring(19); //문제점!
-                    if(inPathName.length()==0){
-                        badRequestMessage(response);
-                        return; //종료! ( response 반환 )
-                    }
-                }
                 exist=true;
             }
 
@@ -75,7 +68,7 @@ public class ApiCheckFilter extends OncePerRequestFilter {
             log.info("APICheckFilter------------------------------------------------");
             String checkHeader=checkAuthHeader(request); //인증헤더 의 추출된 값.
             //log.info("shyswychk: "+antPathMatcher.match(requestUrl,"/auth/verification/*"));
-            log.info("shyswychk2: "+requestUrl);
+           // log.info("shyswychk2: "+requestUrl);
 
             if(checkHeader.length()>0){ //인증 헤더의 JWT 토큰 확인 (content 값이 "" 이면 인증 실패를 나타내는 중.
 
@@ -91,17 +84,45 @@ public class ApiCheckFilter extends OncePerRequestFilter {
                     return; //종료! ( response 반환 )
 
                 }
-                else if(antPathMatcher.match("/auth/verification/*",requestUrl)){
+                else if (antPathMatcher.match("/user/read*",requestUrl) ||
+                        antPathMatcher.match("/user/remove*",requestUrl) ||
+                        antPathMatcher.match("/user/modify*",requestUrl)
 
 
-                    log.info("verification: in-path id: "+inPathName+" Token val: "+checkHeader); //여기까지 성공!
-                    if(inPathName.equals(checkHeader)) {
+                ) {
+                    log.info("go in to read,remove,modify");
+                    pathVar = request.getParameter("id");// 1개의 param value 리턴
+                    log.info("patVar: "+pathVar);
+                    if(pathVar.length()==0|| !pathVar.equals(checkHeader)){ //유저 정보가 다르면 fail!
+                        String message="no authorization";
+                        badRequestMessage(response,message);
+                        return; //종료! ( response 반환 )
+                    }
+                    log.info("shyswychk3");
+
+                    filterChain.doFilter(request,response); //다음 필터로
+                    return;
+
+                }
+
+                else if(antPathMatcher.match("/auth/verification*",requestUrl)){
+
+                    pathVar = request.getParameter("id");// 1개의 param value 리턴
+                    if(pathVar.length()==0){
+                        String message="bad-request";
+                        badRequestMessage(response,message);
+                        return; //종료! ( response 반환 )
+                    }
+
+                    log.info("verification: in-path id: "+pathVar+" Token val: "+checkHeader); //여기까지 성공!
+                    if(pathVar.equals(checkHeader)) {
                         // ok 상태를 json으로 response에 담아서 리턴
                         okStatusMessage(response);
                         return; //종료! ( response 반환 )
                     }
                     else{
-                        badRequestMessage(response);
+                        String message="bad-request";
+                        badRequestMessage(response,message);
                         return;
                     }
 
@@ -163,13 +184,13 @@ public class ApiCheckFilter extends OncePerRequestFilter {
 
 
     //추후 JSON에 넣을 key,value 쌍 , HttpServletResponse.SC_BAD_REQUEST) 두개 파라미터로 한개로 통일하자.
-    private void badRequestMessage(HttpServletResponse response) throws IOException {
+    private void badRequestMessage(HttpServletResponse response,String message) throws IOException {
         //log.info("/auth/verificaion/id 에서 id가 비어있다");
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         response.setContentType("application/json;charset=utf-8");
         // response.set
         JSONObject json = new JSONObject();
-        json.put("code", "bad-request");
+        json.put("code", message);
         PrintWriter out = response.getWriter();
         out.print(json);
         return; //종료! ( response 반환 )
@@ -189,6 +210,7 @@ public class ApiCheckFilter extends OncePerRequestFilter {
 
     private void giveValueMessage(HttpServletResponse response,String checkHeader) throws IOException {
         response.setContentType("application/json;charset=utf-8");
+
         JSONObject json = new JSONObject();
         String message = checkHeader;
 
@@ -201,6 +223,7 @@ public class ApiCheckFilter extends OncePerRequestFilter {
 
     private void failCheckApiMessage(HttpServletResponse response) throws IOException {
         //response.setContentType("application/json;charset=utf-8");
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         response.setContentType("application/json;charset=utf-8");
         JSONObject json = new JSONObject();
         String message = "FAIL CHECK API TOKEN";
@@ -210,6 +233,8 @@ public class ApiCheckFilter extends OncePerRequestFilter {
         out.print(json);
         return;
     }
+
+
 
 }
 

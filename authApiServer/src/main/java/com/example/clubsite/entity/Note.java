@@ -9,7 +9,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@ToString
+@ToString(exclude = "writer")
 public class Note extends BaseEntity {
 
     @Id
@@ -20,8 +20,15 @@ public class Note extends BaseEntity {
 
     private String content;
 
+
+
+
     @ManyToOne(fetch = FetchType.LAZY) // Note : ClubMember = Many : One  로그인한 사용자와 비교하기 위해 사용.
     private ClubMember writer;
+
+
+
+
 
     public void changeTitle(String title){
         this.title = title;

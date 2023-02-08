@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface NoteRepository extends JpaRepository<Note,Long> {
+
+
     @EntityGraph(attributePaths = "writer", type = EntityGraph.EntityGraphType.LOAD)
     @Query("select n from Note n where n.num = :num")
     Optional<Note> getWithWriter(Long num); //num으로 Note 객체 조회 + Writer정보까지 조회하기위해 별도로 만든것

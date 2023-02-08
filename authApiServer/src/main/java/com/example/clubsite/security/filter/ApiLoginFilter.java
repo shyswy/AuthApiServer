@@ -31,6 +31,7 @@ import java.util.List;
 @Log4j2
 public class ApiLoginFilter extends AbstractAuthenticationProcessingFilter {
 
+
     private JWTUtil jwtUtil;
 
     //private HttpServletRequest req;
@@ -43,6 +44,7 @@ public class ApiLoginFilter extends AbstractAuthenticationProcessingFilter {
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException, IOException, ServletException {
+
         log.info("--------------ApiLoginFilter-----------------------");
         JSONObject jsonObject=null;
         //RereadableRequestWrapper rereadableRequestWrapper = new RereadableRequestWrapper((HttpServletRequest)request);

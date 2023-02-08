@@ -41,7 +41,7 @@ public class ClubUserDetailsService  implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException { //실제 인증( 아이디, 비밀번호 확인) 하는 메소드
         //UserDetialsService의 loadUserByUsername을 오버라이딩해서 아이디를 통한 인증을 처리한다.
         log.info("ClubUserDetailsService loadUserByUsername " + username);
-        Optional<ClubMember> result = clubMemberRepository.findByEmail(username, false);
+        Optional<ClubMember> result = clubMemberRepository.findOnlyByEmail(username);
         //멤버 정보를 리포지토리에서 찾는다.
         if(result.isEmpty()){
             throw new UsernameNotFoundException("Check User Email or from Social ");
@@ -54,7 +54,7 @@ public class ClubUserDetailsService  implements UserDetailsService {
                 clubMember.getPassword(),
                 clubMember.isFromSocial(),
                 clubMember.getRoleSet().stream() // role을 저장한 Set의 모든 요소들을 ROLE_USER와 같은 SimpleGrantedAuthority타입으로
-                        .map(role -> new SimpleGrantedAuthority("ROLE_"+role.name()))
+                        .map(role -> new SimpleGrantedAuthority("ROLE_"+role.name())) //인증시, hasRole() 로 검증가능한 형태로 만든다.
                         .collect(Collectors.toSet())
         );
         clubAuthMemberDTO.setName(clubMember.getName());

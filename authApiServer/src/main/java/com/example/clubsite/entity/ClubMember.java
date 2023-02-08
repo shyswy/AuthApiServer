@@ -2,11 +2,9 @@ package com.example.clubsite.entity;
 
 import lombok.*;
 
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -14,7 +12,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@ToString
+@ToString(exclude ={ "roleSet","notes"} ) //해당 클래스의 모든 멤버 변수를 출력한다. >> Member객체인 Writer에 Lazy적용했기에 제외한다.
 
 public class ClubMember extends BaseEntity {
 
@@ -27,11 +25,22 @@ public class ClubMember extends BaseEntity {
 
     private boolean fromSocial;
 
+
+
+
+   // @OneToMany(mappedBy = "writer",orphanRemoval = true) //orphanRemoval = true >> classes 삭제시 관련된 takeclasses 들도 삭제된다.
+    //private List<Note> notes;
+
+
+
+
+
     @ElementCollection(fetch = FetchType.LAZY)
     @Builder.Default
     private Set<ClubMemberRole> roleSet = new HashSet<>();
 
     public void addMemberRole(ClubMemberRole clubMemberRole){
+        roleSet.clear();
         roleSet.add(clubMemberRole);
     }
 

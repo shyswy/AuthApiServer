@@ -14,14 +14,16 @@ import java.util.Set;
 @NoArgsConstructor
 public class ClubMemberDTO {
 
-    private String email;
+    private String id;
 
-    private String password;
+    private String pw;
 
     private String name;
 
     private boolean fromSocial;
 
-    private Set<ClubMemberRole> roleSet;
+
+
+   //private Set<ClubMemberRole> roleSet;
 
 }

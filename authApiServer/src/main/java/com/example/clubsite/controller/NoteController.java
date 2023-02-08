@@ -29,6 +29,7 @@ public class NoteController {
 
 
 
+
     @PostMapping(value = "")
     public ResponseEntity<Long> register(@RequestBody NoteDTO noteDTO){ //Post방식으로 새로운 노트를 등록할 수 있는 기능
         //@RequestBody: JSON 데이터를 받아서 NoteDTO로 변환해준다.
